@@ -1,41 +1,65 @@
+// RoomsView is an object which controls the DOM elements
+// responsible for displaying and selecting rooms.
+
 var RoomsView = {
 
   $button: $('#rooms button'),
   $select: $('#rooms select'),
 
-  initialize: function() {
 
-    RoomsView.$select.on('change', RoomsView.handleChange);
-    RoomsView.$button.on('click', RoomsView.handleClick);
-      },
+  initialize: function() {
+    // TODO: Perform any work which needs to be done
+    // when this view loads.
+  },
 
   render: function() {
+    // TODO: Render out the list of rooms.
+    let oldRooms = JSON.parse(JSON.stringify(Rooms.oldRooms)); //deep clone
 
-    RoomsView.$select.html('');
-    Rooms
-      .items()
-      .each(RoomsView.renderRoom);
-    RoomsView.$select.val(Rooms.selected);
+    var obj = Rooms.filter(Rooms.data);
+    Rooms.oldRooms = obj;
+    // debugger;
+    for (let key in obj) {
+      if (!(key in oldRooms)) {
+      RoomsView.renderRoom(key);
+      }
+      //var compiled = RoomsView.renderRoom(obj[key]);
+    // RoomsView.$select.append(compiled);
+    }
+    for (let key in oldRooms) {
+      if (!(key in obj)) {
+        $('#' + key).remove();
+      }
+      //var compiled = RoomsView.renderRoom(obj[key]);
+    // RoomsView.$select.append(compiled);
+    }
+
   },
 
   renderRoom: function(roomname) {
-    var $option = $('<option>').val(roomname).text(roomname);
-    RoomsView.$select.append($option);
+    RoomsView.$select.append('<option class="roomItems" id="' + roomname + '"' + '>' + roomname + '</option>');
+
+    // TODO: Render out a single room.
   },
 
   handleChange: function(event) {
-    Rooms.selected = RoomsView.$select.val();
-    MessagesView.render();
+    // TODO: Handle a user selecting a different room.
   },
 
   handleClick: function(event) {
-    var roomname = prompt('Enter room name');
-    if (roomname) {
-      Rooms.add(roomname, () => {
-        RoomsView.render();
-        MessagesView.render();
-      });
-    }
-      }
+    // TODO: Handle the user clicking the "Add Room" button.
+    $('#addRoom').click(function() {
+      let roomName = $('#room').val();
+      let text = $('#message').val();
+      //let text = 'hello';
+      let username = window.location.search.substring(10, window.location.search.length);
+      let message = {
+        username: username,
+        text: text,
+        roomname: roomName
+      };
+      Parse.create(message);
+    });
+  }
 
 };

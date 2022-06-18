@@ -1,3 +1,7 @@
+// This App object represents the Chatterbox application.
+// It should initialize the other parts of the application
+// and begin making requests to the Parse API for data.
+
 var App = {
 
   $spinner: $('.spinner img'),
@@ -10,26 +14,44 @@ var App = {
     FormView.initialize();
     RoomsView.initialize();
     MessagesView.initialize();
+    RoomsView.handleClick();
+    FormView.handleSubmit();
+    MessagesView.handleClick();
 
     // Fetch initial batch of messages
     App.startSpinner();
     App.fetch(App.stopSpinner);
 
+    // TODO: Make sure the app loads data from the API
+    // continually, instead of just once at the start.
+    // setTimeout(scheduleNextTweet, 250 + (Math.random() * 1250))
 
-    // Poll for new messages every 3 sec
-    setInterval(App.fetch, 3000);
+    var scheduleNextMessage = function() {
+      // if (streams.home.length < 100) {
+      // MessagesView.initialize();
+      // FormView.initialize();
+      // RoomsView.initialize();
+      App.fetch();
+      // MessagesView.initialize();
+      setTimeout(scheduleNextMessage, 5000);
+      //}
+    };
+    App.stopSpinner();
+    scheduleNextMessage();
   },
 
   fetch: function(callback = ()=>{}) {
     Parse.readAll((data) => {
-      // Don't bother to update if we have no messages
-      if (data && data.length) {
-        Rooms.update(data, RoomsView.render);
-        Messages.update(data, MessagesView.render);
-      }
-      callback();
-      return;
+      // examine the response from the server request:
+      MessagesView.$message.remove();
+      Messages.data = data;
+      Rooms.data = data;
+      MessagesView.render();
+      RoomsView.render();
+      // TODO: Use the data to update Messages and Rooms
+      // and re-render the corresponding views.
     });
+
   },
 
   startSpinner: function() {

@@ -47,15 +47,21 @@ var requestHandler = function(request, response) {
     // message.data = request._postData;
     console.log('Serving request type ' + request.method + ' for url ' + request.url);
     var statusCode = 201;
-    database.push(JSON.stringify(request._postData));
-   // database.push(message);
+    let combinedChunk = '';
+    request.on('data',(chunk) => {
+      combinedChunk = combinedChunk + chunk;
+    });
+    request.on('end',() => {
+      database.push(JSON.parse(combinedChunk));
+    });
+
     var headers = defaultCorsHeaders;
     headers['Content-Type'] = '.application/json';
     response.writeHead(statusCode, headers);
-   // console.log(database)
-    response.end(JSON.stringify(database));
+    response.end('Success');
     //need a failure case and corresponding status code
     }
+
   }
 
   if (request.method === 'GET') {
